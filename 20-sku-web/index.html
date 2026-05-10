@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SKU 重量核验</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Cross-border SKU Weight Check</p>
+          <h1>SKU 重量核验</h1>
+        </div>
+        <div class="top-actions">
+          <button class="ghost-button" id="downloadTemplateBtn" type="button" title="下载导入模板">
+            <span aria-hidden="true">↓</span>
+            模板
+          </button>
+          <button class="danger-button" id="clearBtn" type="button" title="清空当前数据">
+            清空
+          </button>
+        </div>
+      </header>
+
+      <section class="summary-grid" aria-label="汇总">
+        <article class="metric">
+          <span class="metric-label">预估 SKU</span>
+          <strong id="estimateCount">0</strong>
+        </article>
+        <article class="metric">
+          <span class="metric-label">已称重</span>
+          <strong id="actualCount">0</strong>
+        </article>
+        <article class="metric alert">
+          <span class="metric-label">异常</span>
+          <strong id="exceptionCount">0</strong>
+        </article>
+        <article class="metric">
+          <span class="metric-label">阈值</span>
+          <label class="threshold-control">
+            <input id="thresholdInput" type="number" min="0" step="1" value="20" />
+            <span>g</span>
+          </label>
+        </article>
+      </section>
+
+      <section class="workspace">
+        <section class="panel import-panel">
+          <div class="panel-head">
+            <h2>预估重量</h2>
+            <span id="estimateStatus" class="status-pill">待导入</span>
+          </div>
+          <label class="dropzone" for="estimateFile">
+            <input id="estimateFile" type="file" accept=".csv,.xlsx,.xls" />
+            <span class="drop-icon" aria-hidden="true">⇧</span>
+            <strong>导入预估重量表</strong>
+            <small>支持 CSV / XLSX，网页离线可用</small>
+          </label>
+          <div class="sample-table">
+            <div>可识别表头</div>
+            <code>SKU, 预估重量(g)</code>
+            <code>商品编码, estimated_weight</code>
+          </div>
+        </section>
+
+        <section class="panel weighing-panel">
+          <div class="panel-head">
+            <h2>称重录入</h2>
+            <span id="lastResult" class="status-pill neutral">未录入</span>
+          </div>
+          <form id="weighForm" class="weigh-form">
+            <label>
+              <span>SKU</span>
+              <input id="skuInput" type="text" autocomplete="off" placeholder="扫描或输入 SKU" required />
+            </label>
+            <label>
+              <span>实际重量(g)</span>
+              <input id="actualWeightInput" type="number" min="0" step="0.1" placeholder="0.0" required />
+            </label>
+            <button class="primary-button" type="submit">记录称重</button>
+          </form>
+          <div class="batch-line">
+            <label class="file-button" for="actualFile">
+              <input id="actualFile" type="file" accept=".csv,.xlsx,.xls" />
+              批量导入实际重量
+            </label>
+            <button class="ghost-button" id="exportAllBtn" type="button">导出全部记录</button>
+          </div>
+        </section>
+
+        <section class="panel exception-panel">
+          <div class="panel-head">
+            <h2>异常 SKU</h2>
+            <button class="primary-button compact" id="exportExceptionsBtn" type="button">导出异常</button>
+          </div>
+          <div id="emptyExceptions" class="empty-state">暂无超过阈值的 SKU</div>
+          <div class="exception-list" id="exceptionList"></div>
+        </section>
+      </section>
+
+      <section class="records-section">
+        <div class="panel-head">
+          <h2>核验明细</h2>
+          <div class="filters" role="group" aria-label="筛选">
+            <button class="tab-button active" type="button" data-filter="all">全部</button>
+            <button class="tab-button" type="button" data-filter="exception">异常</button>
+            <button class="tab-button" type="button" data-filter="normal">正常</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>预估(g)</th>
+                <th>实际(g)</th>
+                <th>误差(g)</th>
+                <th>状态</th>
+                <th>时间</th>
+              </tr>
+            </thead>
+            <tbody id="recordBody">
+              <tr>
+                <td colspan="6" class="empty-cell">导入预估重量后开始称重</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div id="alertModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal">
+        <div class="modal-icon" aria-hidden="true">!</div>
+        <h2 id="modalTitle">重量误差超出阈值</h2>
+        <p id="modalMessage"></p>
+        <div class="modal-actions">
+          <button class="ghost-button" id="modalCloseBtn" type="button">知道了</button>
+          <button class="primary-button" id="modalExportBtn" type="button">导出异常</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
